@@ -60,7 +60,7 @@ Sertakan sumber/nama referensi bila memungkinkan.
 
 def _run_research(client: genai.Client, req: RecommendationRequest) -> tuple[str, list[str]]:
     response = client.models.generate_content(
-        model=config.GEMINI_RESEARCH_MODEL,
+        model=config.GEMINI_MODEL,
         contents=_build_research_prompt(req),
         config=types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())],
@@ -128,7 +128,7 @@ def _run_synthesis(
     client: genai.Client, req: RecommendationRequest, research_notes: str
 ) -> DesignRecommendation:
     response = client.models.generate_content(
-        model=config.GEMINI_SYNTHESIS_MODEL,
+        model=config.GEMINI_MODEL,
         contents=_build_synthesis_prompt(req, research_notes),
         config=types.GenerateContentConfig(
             response_mime_type="application/json",

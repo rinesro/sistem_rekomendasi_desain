@@ -1,5 +1,17 @@
 /* ---------------------------------------------------------------------
- * Wizard state & navigation
+ * Halaman: Form (halaman 1) <-> Hasil (halaman 2)
+ * ------------------------------------------------------------------- */
+const pageFormEl = document.getElementById("page-form");
+const pageResultEl = document.getElementById("page-result");
+
+function showPage(pageId) {
+  pageFormEl.classList.toggle("hidden", pageId !== "page-form");
+  pageResultEl.classList.toggle("hidden", pageId !== "page-result");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------------------------------------------------------------------
+ * Wizard state & navigation (di dalam halaman form)
  * ------------------------------------------------------------------- */
 const TOTAL_STEPS = 3;
 let currentStep = 1;
@@ -17,7 +29,7 @@ function showStep(step) {
     dot.classList.toggle("active", n === step);
     dot.classList.toggle("done", n < step);
   });
-  document.getElementById("form-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 document.querySelectorAll('[data-action="next"]').forEach((btn) => {
@@ -168,9 +180,9 @@ function buildPayload() {
  * Result rendering
  * ------------------------------------------------------------------- */
 const resultEl = document.getElementById("result");
-const placeholderEl = document.getElementById("placeholder");
 const loadingEl = document.getElementById("loading");
 const resultActionsEl = document.getElementById("result-actions");
+const resultErrorEl = document.getElementById("result-error");
 let lastRecommendation = null;
 
 function colorCard(token) {
@@ -292,7 +304,6 @@ function renderResult(data) {
 
   resultEl.classList.remove("hidden");
   resultActionsEl.classList.remove("hidden");
-  placeholderEl.classList.add("hidden");
 }
 
 /* ---------------------------------------------------------------------
@@ -358,12 +369,14 @@ form.addEventListener("submit", async (e) => {
     showStep(!validateStep(1) ? 1 : 2);
     return;
   }
-
   errorBox.classList.add("hidden");
+
+  // Pindah ke halaman 2 (hasil) dan tampilkan status loading di sana.
   resultEl.classList.add("hidden");
   resultActionsEl.classList.add("hidden");
-  placeholderEl.classList.add("hidden");
+  resultErrorEl.classList.add("hidden");
   loadingEl.classList.remove("hidden");
+  showPage("page-result");
   submitBtn.disabled = true;
 
   try {
@@ -382,9 +395,8 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
     renderResult(data);
   } catch (err) {
-    errorBox.textContent = err.message || "Terjadi kesalahan. Coba lagi ya.";
-    errorBox.classList.remove("hidden");
-    placeholderEl.classList.remove("hidden");
+    resultErrorEl.textContent = err.message || "Terjadi kesalahan. Coba lagi ya.";
+    resultErrorEl.classList.remove("hidden");
   } finally {
     loadingEl.classList.add("hidden");
     submitBtn.disabled = false;
@@ -392,11 +404,16 @@ form.addEventListener("submit", async (e) => {
 });
 
 /* ---------------------------------------------------------------------
- * Restart
+ * Navigasi antar halaman: Edit Input & Mulai Ulang
  * ------------------------------------------------------------------- */
+document.getElementById("edit-btn").addEventListener("click", () => {
+  showPage("page-form");
+});
+
 document.getElementById("restart-btn").addEventListener("click", () => {
   resultEl.classList.add("hidden");
   resultActionsEl.classList.add("hidden");
-  placeholderEl.classList.remove("hidden");
+  resultErrorEl.classList.add("hidden");
   showStep(1);
+  showPage("page-form");
 });
