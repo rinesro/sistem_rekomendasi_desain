@@ -185,7 +185,14 @@ const resultActionsEl = document.getElementById("result-actions");
 const resultErrorEl = document.getElementById("result-error");
 let lastRecommendation = null;
 
+function slugify(text) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 function colorCard(token) {
+  const partTags = (token.ui_parts || [])
+    .map((part) => `<span class="ui-part-tag">${part}</span>`)
+    .join("");
   return `
     <div class="color-card">
       <div class="color-swatch" style="background:${token.hex}" data-copy="${token.hex}">
@@ -194,24 +201,39 @@ function colorCard(token) {
       <div class="color-meta">
         <div class="hex">${token.hex}</div>
         <div class="name">${token.name}</div>
-        <div class="usage">${token.usage}</div>
+        <div class="ui-parts">${partTags}</div>
         <div class="contrast">✓ ${token.contrast_note}</div>
       </div>
     </div>`;
 }
 
+function colorGroupBlock(group) {
+  return `
+    <div class="color-group">
+      <div class="color-group-header">
+        <span class="percentage-badge">${group.percentage_label}</span>
+        <span class="color-group-title">${group.role_title}</span>
+      </div>
+      <div class="color-grid">${group.tokens.map(colorCard).join("")}</div>
+      <p class="notes-box">${group.rationale}</p>
+    </div>`;
+}
+
+function componentCard(c) {
+  const hasValue = c.value_px !== null && c.value_px !== undefined;
+  return `
+    <div class="component-card">
+      <div class="component-card-head">
+        <span class="component-name">${c.component_name}</span>
+        ${hasValue ? `<span class="component-value">${c.value_px}px</span>` : ""}
+      </div>
+      <div class="component-rec">${c.recommendation}</div>
+      <div class="component-rationale">${c.rationale}</div>
+    </div>`;
+}
+
 function renderResult(data) {
   lastRecommendation = data;
-  const colorKeys = [
-    "primary", "secondary", "accent", "background", "surface",
-    "text_primary", "text_secondary", "success", "warning", "error",
-  ];
-
-  const colorCards = colorKeys
-    .map((k) => data.color_palette[k])
-    .filter(Boolean)
-    .map(colorCard)
-    .join("");
 
   const maxSpacing = Math.max(...data.sizing.spacing_scale_px, 1);
   const spacingBars = data.sizing.spacing_scale_px
@@ -244,30 +266,35 @@ function renderResult(data) {
 
   const sources = (data.sources || []).map((s) => `<li>${s}</li>`).join("");
 
+  const statusColorCards = (data.color_palette.status_colors || []).map(colorCard).join("");
+  const shapeComponents = data.shape.components.map(componentCard).join("");
+  const sizingComponents = data.sizing.components.map(componentCard).join("");
+
   resultEl.innerHTML = `
     <div class="result-block">
-      <h3>Ringkasan untuk kamu</h3>
-      <div class="summary-box">${data.summary}</div>
-    </div>
-
-    <div class="result-block">
-      <h3>Palet Warna &middot; skema ${data.color_palette.scheme_type}</h3>
-      <div class="color-grid">${colorCards}</div>
+      <h3>Palet Warna &middot; skema ${data.color_palette.scheme_type} &middot; proporsi 60-30-10</h3>
+      ${colorGroupBlock(data.color_palette.dominant)}
+      ${colorGroupBlock(data.color_palette.secondary)}
+      ${colorGroupBlock(data.color_palette.accent)}
+      <div class="color-group">
+        <div class="color-group-header">
+          <span class="color-group-title">Warna Status <em>(dipakai sesuai konteks, di luar rasio 60-30-10)</em></span>
+        </div>
+        <div class="color-grid">${statusColorCards}</div>
+      </div>
       <p class="notes-box">${data.color_palette.rationale}</p>
     </div>
 
     <div class="result-block">
-      <h3>Bentuk &middot; gaya ${data.shape.style}</h3>
-      <div class="shape-preview-row">
-        <div class="shape-box small" style="border-radius:${data.shape.corner_radius_small_px}px">S<br/>${data.shape.corner_radius_small_px}px</div>
-        <div class="shape-box medium" style="border-radius:${data.shape.corner_radius_medium_px}px">M<br/>${data.shape.corner_radius_medium_px}px</div>
-        <div class="shape-box large" style="border-radius:${data.shape.corner_radius_large_px}px">L<br/>${data.shape.corner_radius_large_px}px</div>
-      </div>
-      <p class="notes-box">Gaya ikon yang disarankan: <strong>${data.shape.icon_style}</strong><br/>${data.shape.rationale}</p>
+      <h3>Bentuk &middot; gaya ${data.shape.overall_style}</h3>
+      <div class="component-list">${shapeComponents}</div>
+      <p class="notes-box">Gaya ikon yang disarankan: <strong>${data.shape.icon_style}</strong></p>
+      <p class="notes-box">${data.shape.rationale}</p>
     </div>
 
     <div class="result-block">
       <h3>Ukuran &amp; Jarak Antar Elemen</h3>
+      <div class="component-list">${sizingComponents}</div>
       <div class="spacing-row">${spacingBars}</div>
       <p class="notes-box">
         Ukuran minimum tombol/area sentuh: <strong>${data.sizing.min_touch_target_px}px</strong> ·
@@ -331,27 +358,32 @@ document.getElementById("copy-css-btn").addEventListener("click", () => {
   const c = lastRecommendation.color_palette;
   const s = lastRecommendation.sizing;
   const sh = lastRecommendation.shape;
-  const css = `:root {
-  /* Warna */
-  --color-primary: ${c.primary.hex};
-  --color-secondary: ${c.secondary.hex};
-  --color-accent: ${c.accent.hex};
-  --color-background: ${c.background.hex};
-  --color-surface: ${c.surface.hex};
-  --color-text-primary: ${c.text_primary.hex};
-  --color-text-secondary: ${c.text_secondary.hex};
-  --color-success: ${c.success.hex};
-  --color-warning: ${c.warning.hex};
-  --color-error: ${c.error.hex};
 
-  /* Bentuk */
-  --radius-small: ${sh.corner_radius_small_px}px;
-  --radius-medium: ${sh.corner_radius_medium_px}px;
-  --radius-large: ${sh.corner_radius_large_px}px;
+  const colorLines = [];
+  [c.dominant, c.secondary, c.accent].forEach((group) => {
+    group.tokens.forEach((t) => colorLines.push(`  --color-${slugify(t.name)}: ${t.hex};`));
+  });
+  (c.status_colors || []).forEach((t) => colorLines.push(`  --color-${slugify(t.name)}: ${t.hex};`));
+
+  const radiusLines = sh.components
+    .filter((comp) => comp.value_px !== null && comp.value_px !== undefined)
+    .map((comp) => `  --radius-${slugify(comp.component_name)}: ${comp.value_px}px;`);
+
+  const sizeLines = s.components
+    .filter((comp) => comp.value_px !== null && comp.value_px !== undefined)
+    .map((comp) => `  --size-${slugify(comp.component_name)}: ${comp.value_px}px;`);
+
+  const css = `:root {
+  /* Warna (60-30-10 + status) */
+${colorLines.join("\n")}
+
+  /* Bentuk per komponen */
+${radiusLines.join("\n")}
 
   /* Ukuran */
   --spacing-unit: ${s.base_spacing_unit_px}px;
   --touch-target-min: ${s.min_touch_target_px}px;
+${sizeLines.join("\n")}
 }`;
   copyToClipboard(css, "CSS variables disalin ke clipboard");
 });

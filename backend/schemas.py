@@ -50,35 +50,45 @@ class RecommendationRequest(BaseModel):
 
 # ---------------------------------------------------------------------------
 # Response (structured recommendation produced by Gemini)
+#
+# Warna dikelompokkan mengikuti aturan proporsi 60-30-10 (bukan daftar token lepas),
+# dan bentuk/ukuran dipecah per bagian UI konkret (tombol, kartu, input, dst) supaya
+# pengguna non-desainer langsung tahu rekomendasi itu berlaku untuk elemen yang mana.
 # ---------------------------------------------------------------------------
 
 class ColorToken(BaseModel):
     name: str
     hex: str
-    usage: str
+    ui_parts: List[str]  # bagian UI yang cocok memakai warna ini, mis. ["Background halaman", "Card"]
     contrast_note: str
+
+
+class ColorGroup(BaseModel):
+    percentage_label: str  # "60%", "30%", atau "10%"
+    role_title: str  # mis. "Warna Dominan (Netral)", "Warna Sekunder", "Warna Aksen"
+    tokens: List[ColorToken]
+    rationale: str
 
 
 class ColorPalette(BaseModel):
     scheme_type: str
-    primary: ColorToken
-    secondary: ColorToken
-    accent: ColorToken
-    background: ColorToken
-    surface: ColorToken
-    text_primary: ColorToken
-    text_secondary: ColorToken
-    success: ColorToken
-    warning: ColorToken
-    error: ColorToken
+    dominant: ColorGroup  # ~60% dari tampilan
+    secondary: ColorGroup  # ~30% dari tampilan
+    accent: ColorGroup  # ~10% dari tampilan
+    status_colors: List[ColorToken]  # success/warning/error - dipakai kontekstual, di luar rasio 60-30-10
+    rationale: str
+
+
+class ComponentRecommendation(BaseModel):
+    component_name: str  # nama bagian UI, mis. "Tombol Utama", "Kartu/Card", "Jarak Antar Section"
+    recommendation: str  # rekomendasi konkret dalam 1 kalimat singkat, sertakan angka px
+    value_px: Optional[int] = None  # angka px utama dari rekomendasi (radius/tinggi/dll), null jika tidak relevan
     rationale: str
 
 
 class ShapeRecommendation(BaseModel):
-    style: str
-    corner_radius_small_px: int
-    corner_radius_medium_px: int
-    corner_radius_large_px: int
+    overall_style: str  # mis. "rounded", "sharp", "mixed"
+    components: List[ComponentRecommendation]
     icon_style: str
     rationale: str
 
@@ -96,6 +106,7 @@ class SizingRecommendation(BaseModel):
     min_touch_target_px: int
     typography_scale: List[TypographyScaleStep]
     breakpoints_px: List[int]
+    components: List[ComponentRecommendation]
     rationale: str
 
 
@@ -105,7 +116,6 @@ class DesignPrinciple(BaseModel):
 
 
 class DesignRecommendation(BaseModel):
-    summary: str
     color_palette: ColorPalette
     shape: ShapeRecommendation
     sizing: SizingRecommendation

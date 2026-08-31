@@ -141,15 +141,50 @@ Spesifikasi kebutuhan sistem:
 - Mode gelap dibutuhkan: {"ya" if req.dark_mode else "tidak"}
 - Warna brand existing (pertahankan/harmoniskan jika ada): {", ".join(req.existing_brand_colors) if req.existing_brand_colors else "tidak ada"}
 
-Instruksi keluaran:
+Instruksi keluaran — PENTING, tulis untuk pembaca yang AWAM desain (bukan desainer),
+jadi setiap rekomendasi harus konkret dan menyebutkan bagian UI-nya, bukan istilah
+abstrak:
+
+WARNA (`color_palette`) — WAJIB mengikuti aturan proporsi 60-30-10:
+- `dominant` (~60%, `percentage_label` = "60%"): warna netral yang paling banyak
+  dipakai. `tokens` berisi 1-3 warna (mis. background & surface) dan tiap token WAJIB
+  isi `ui_parts` dengan daftar bagian UI konkret yang cocok pakai warna ini, contoh:
+  ["Background halaman", "Latar kartu/card", "Area kosong di sekitar konten"].
+- `secondary` (~30%, `percentage_label` = "30%"): warna pendukung. `ui_parts` contoh:
+  ["Header/top bar", "Navigasi/tab bar", "Tombol sekunder", "Teks judul"].
+- `accent` (~10%, `percentage_label` = "10%"): warna paling mencolok, dipakai sedikit
+  tapi untuk elemen paling penting. `ui_parts` contoh: ["Tombol utama/CTA", "Badge
+  notifikasi", "Link aktif", "Progress bar"].
+- `status_colors`: 3 warna (success/warning/error), `ui_parts` jelaskan konteks
+  pemakaian, mis. ["Pesan berhasil simpan", "Badge status aktif"].
 - Semua kode warna HARUS hex valid dan lolos rasio kontras WCAG AA untuk perannya
   (jelaskan rasio/alasan singkat di `contrast_note` tiap warna).
-- Semua ukuran (spacing, radius, font, breakpoint) HARUS mengikuti skala 8pt/4pt grid
-  atau modular type scale yang relevan (lihat basis teori di atas).
+
+BENTUK (`shape`) — isi `components` dengan rekomendasi PER BAGIAN UI (bukan cuma
+ukuran S/M/L generik). Sesuaikan daftar bagian dengan platform ({req.platform.value}),
+minimal cakup: Tombol Utama, Tombol Sekunder, Kartu/Card atau List Item, Input
+Field/Form, Ikon, dan satu elemen Navigasi yang relevan (nav bar/tab bar/sidebar/menu).
+Tiap `recommendation` harus 1 kalimat konkret dengan angka px, contoh: "Rounded penuh
+(pill), tinggi 48px" untuk Tombol Utama. Isi `value_px` dengan angka radius utamanya
+(mis. 24 untuk contoh di atas).
+
+UKURAN (`sizing`) — isi `components` dengan rekomendasi PER BAGIAN UI juga, minimal
+cakup: tinggi tombol utama, jarak antar section/blok konten, ukuran ikon, padding di
+dalam kartu, dan lebar maksimum konten (khusus web/desktop). Tiap `recommendation` 1
+kalimat konkret dengan angka px, dan isi `value_px` dengan angka px utamanya (mis.
+tinggi/ukuran/jarak). Field numerik (`base_spacing_unit_px`, `spacing_scale_px`,
+`min_touch_target_px`, `typography_scale`, `breakpoints_px`) HARUS tetap diisi
+mengikuti skala 8pt/4pt grid atau modular type scale (lihat basis teori).
+
+Untuk `component_name` yang tidak punya satu angka px tunggal yang relevan (mis. gaya
+ikon), boleh set `value_px` ke null.
+
+LAINNYA:
 - `principles_applied` isi minimal 4 prinsip dari basis teori di atas beserta penerapan
   konkretnya pada rekomendasi ini (bukan definisi umum, tapi aplikasi ke kasus ini).
 - `research_notes` ringkas hasil riset kontekstual di atas jadi 2-4 kalimat.
-- Tulis seluruh konten dalam Bahasa Indonesia.
+- Tulis seluruh konten dalam Bahasa Indonesia, kalimat pendek dan jelas, hindari
+  istilah teknis tanpa penjelasan.
 """.strip()
 
 
