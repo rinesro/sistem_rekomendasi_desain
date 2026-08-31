@@ -12,16 +12,43 @@ Dipisah dua panggilan karena Gemini API saat ini tidak mendukung penggabungan to
 `google_search` dengan `response_schema` terstruktur dalam satu request yang sama.
 """
 
+import time
+from typing import Callable, TypeVar
+
 from google import genai
-from google.genai import types
+from google.genai import errors, types
 
 from . import config
 from .knowledge_base import UI_UX_THEORY_KNOWLEDGE_BASE
 from .schemas import DesignRecommendation, RecommendationRequest
 
+T = TypeVar("T")
+
+# Error transient di sisi server Google (mis. 503 "model sedang high demand", 500
+# internal error, 429 rate limit sesaat) biasanya berhasil kalau dicoba ulang setelah
+# jeda singkat -> beda dengan 429 kuota harian habis yang tidak akan membaik walau
+# di-retry (tapi tetap aman untuk dicoba, karena tidak merugikan selain menambah waktu
+# tunggu beberapa detik).
+_RETRYABLE_CODES = {429, 500, 503, 504}
+_MAX_ATTEMPTS = 3
+_BASE_DELAY_SECONDS = 3
+
 
 class GeminiServiceError(RuntimeError):
     pass
+
+
+def _call_with_retry(fn: Callable[[], T]) -> T:
+    last_error: Exception | None = None
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        try:
+            return fn()
+        except errors.APIError as exc:
+            last_error = exc
+            if exc.code not in _RETRYABLE_CODES or attempt == _MAX_ATTEMPTS:
+                raise
+            time.sleep(_BASE_DELAY_SECONDS * attempt)
+    raise last_error  # pragma: no cover - unreachable, satisfies type checker
 
 
 def _get_client() -> genai.Client:
@@ -59,12 +86,14 @@ Sertakan sumber/nama referensi bila memungkinkan.
 
 
 def _run_research(client: genai.Client, req: RecommendationRequest) -> tuple[str, list[str]]:
-    response = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=_build_research_prompt(req),
-        config=types.GenerateContentConfig(
-            tools=[types.Tool(google_search=types.GoogleSearch())],
-        ),
+    response = _call_with_retry(
+        lambda: client.models.generate_content(
+            model=config.GEMINI_MODEL,
+            contents=_build_research_prompt(req),
+            config=types.GenerateContentConfig(
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+            ),
+        )
     )
 
     text = response.text or ""
@@ -127,13 +156,15 @@ Instruksi keluaran:
 def _run_synthesis(
     client: genai.Client, req: RecommendationRequest, research_notes: str
 ) -> DesignRecommendation:
-    response = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=_build_synthesis_prompt(req, research_notes),
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=DesignRecommendation,
-        ),
+    response = _call_with_retry(
+        lambda: client.models.generate_content(
+            model=config.GEMINI_MODEL,
+            contents=_build_synthesis_prompt(req, research_notes),
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=DesignRecommendation,
+            ),
+        )
     )
 
     parsed = response.parsed
