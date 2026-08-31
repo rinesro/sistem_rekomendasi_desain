@@ -34,7 +34,7 @@ Dipisah jadi 2 panggilan Gemini karena API saat ini tidak mendukung penggabungan
 
 2. Salin `.env.example` menjadi `.env`, isi `GEMINI_API_KEY` (dapatkan gratis di
    https://aistudio.google.com/apikey). Hanya baris ini yang wajib diisi — model sudah
-   diset default ke Gemini 3 Flash.
+   diset default ke `gemini-2.5-flash`.
 
 3. Jalankan server:
    ```bash
@@ -91,8 +91,10 @@ Lihat `backend/knowledge_base.py` untuk rangkuman lengkap. Poin utama:
 
 - Kualitas hasil bergantung pada kejelasan input (semakin spesifik kebutuhan sistem &
   target user, semakin relevan rekomendasinya).
-- Satu model dipakai untuk seluruh proses (riset & sintesis): `gemini-3-flash-preview`
-  (Gemini 3 Flash). Bisa diganti lewat env var `GEMINI_MODEL` di `.env` bila suatu saat
-  ingin memakai model Gemini lain.
+- Satu model dipakai untuk seluruh proses (riset & sintesis): `gemini-2.5-flash`
+  (model stabil/GA, kuota gratis lebih longgar dibanding model preview seperti
+  `gemini-3-flash-preview`, yang lebih mudah kena error 429 RESOURCE_EXHAUSTED). Bisa
+  diganti lewat env var `GEMINI_MODEL` di `.env` bila suatu saat ingin memakai model
+  Gemini lain.
 - UI dibagi 2 halaman: **halaman form** (wizard 3 langkah) dan **halaman hasil**, tanpa
   perlu reload — navigasi ditangani di `frontend/app.js`.

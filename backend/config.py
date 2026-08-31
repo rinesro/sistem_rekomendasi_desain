@@ -7,7 +7,8 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Satu model dipakai untuk semua pemanggilan Gemini (riset & sintesis).
-# ID resmi Gemini 3 Flash per dokumentasi Google (masih berstatus "preview" di sisi
-# Google walau sudah stabil dipakai). Bisa diganti lewat env var GEMINI_MODEL kalau
-# suatu saat ingin pindah ke versi lain (mis. gemini-3.5-flash).
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+# Default dipilih model stabil (GA, bukan preview) karena model preview seperti
+# gemini-3-flash-preview punya kuota gratis yang jauh lebih ketat dan mudah kena
+# error 429 RESOURCE_EXHAUSTED. Bisa diganti lewat env var GEMINI_MODEL kapan saja,
+# termasuk balik ke gemini-3-flash-preview kalau kuotanya sudah cukup.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
