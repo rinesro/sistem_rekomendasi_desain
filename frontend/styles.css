@@ -44,7 +44,7 @@ body {
 
 /* ---------- Layout: 2 halaman penuh (form -> hasil) ---------- */
 .app-shell {
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -92,8 +92,18 @@ body {
 .field-label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
 .field-label em { font-weight: 500; font-style: normal; color: var(--text-muted); font-size: 12px; }
 .field-hint { display: block; margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+.field-hint-top { margin: -2px 0 10px; line-height: 1.5; }
 
-input[type="text"], textarea {
+.field-inline {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px 20px;
+}
+@media (min-width: 640px) {
+  .field-inline { grid-template-columns: 1fr 1fr; }
+}
+
+input[type="text"], input[type="number"], textarea {
   display: block;
   width: 100%;
   padding: 11px 13px;
@@ -105,14 +115,12 @@ input[type="text"], textarea {
   background: #fbfbfe;
   transition: border-color 0.15s ease;
 }
-input[type="text"]:focus, textarea:focus {
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
   outline: none;
   border-color: var(--primary);
   background: white;
 }
 textarea { resize: vertical; min-height: 64px; }
-
-.custom-input { margin-top: 10px; }
 
 /* ---------- Chips ---------- */
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -128,14 +136,36 @@ textarea { resize: vertical; min-height: 64px; }
   font-family: inherit;
   cursor: pointer;
   transition: all 0.15s ease;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.chip-group-vertical .chip { border-radius: var(--radius-sm); text-align: left; padding: 12px 14px; }
+.chip-group-vertical .chip { border-radius: var(--radius-sm); text-align: left; padding: 12px 14px; max-width: none; white-space: normal; }
 .chip:hover { border-color: var(--primary); }
 .chip.active {
   background: var(--primary);
   border-color: var(--primary);
   color: white;
 }
+.chip-custom { border-style: dashed; }
+.chip-custom.active { border-style: solid; }
+
+/* ---------- Modal "Lainnya" ---------- */
+dialog.modal {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: min(420px, 90vw);
+  box-shadow: var(--shadow);
+}
+dialog.modal::backdrop { background: rgba(20, 22, 40, 0.45); }
+dialog.modal h3 { margin: 0 0 6px; font-size: 16px; }
+dialog.modal .field-hint { margin: 0 0 16px; }
+.modal-field input[type="text"], .modal-field input[type="number"] { margin-top: 4px; }
+.modal-range-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-range-row label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
 /* ---------- Color picker ---------- */
 .color-pick-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -202,16 +232,16 @@ textarea { resize: vertical; min-height: 64px; }
   30% { background: #fde8e8; border-radius: var(--radius-sm); }
 }
 
-/* ---------- Result panel ---------- */
-.result-header {
+/* ---------- Result: topbar + accordion per-section ---------- */
+.result-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 10px;
 }
-.result-header h2 { margin: 0; font-size: 18px; margin-right: auto; }
+.result-topbar h2 { margin: 0; font-size: 18px; margin-right: auto; }
 .result-header-actions { display: flex; gap: 8px; }
 
 .spinner {
@@ -219,19 +249,54 @@ textarea { resize: vertical; min-height: 64px; }
   border: 3px solid var(--border);
   border-top-color: var(--primary);
   border-radius: 50%;
-  margin: 40px auto 16px;
+  margin: 20px auto 16px;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-#loading { text-align: center; color: var(--text-muted); font-size: 14px; padding-bottom: 20px; }
+#loading { text-align: center; color: var(--text-muted); font-size: 14px; }
 .loading-sub { font-size: 12px; opacity: 0.8; }
 
-.result-block { margin: 24px 0; padding-top: 20px; border-top: 1px solid var(--border); }
-.result-block:first-child { margin-top: 16px; padding-top: 0; border-top: none; }
-.result-block h3 {
-  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
-  color: var(--text-muted); margin: 0 0 12px; font-weight: 800;
+#result { display: flex; flex-direction: column; gap: 14px; }
+
+.accordion {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.accordion-header h3 {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text); margin: 0; font-weight: 800;
+}
+.accordion-chevron {
+  color: var(--text-muted);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.accordion.open .accordion-chevron { transform: rotate(180deg); }
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+.accordion.open .accordion-body { grid-template-rows: 1fr; }
+.accordion-body-inner { overflow: hidden; min-height: 0; }
+.accordion-content { padding: 0 22px 22px; }
 
 /* Kelompok warna 60-30-10 */
 .color-group { margin-bottom: 22px; }

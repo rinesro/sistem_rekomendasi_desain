@@ -51,15 +51,21 @@
               </div>
             </div>
 
-            <div class="field">
-              <label class="field-label" for="system_name">Nama sistem / aplikasinya apa?</label>
-              <input type="text" id="system_name" placeholder="cth. Tenang - Aplikasi Kesehatan Mental" />
-              <span class="field-hint">Boleh nama sementara, tidak masalah.</span>
+            <div class="field field-inline">
+              <div>
+                <label class="field-label" for="system_name">Nama sistem / aplikasinya apa?</label>
+                <input type="text" id="system_name" placeholder="cth. Tenang - Aplikasi Kesehatan Mental" />
+                <span class="field-hint">Boleh nama sementara, tidak masalah.</span>
+              </div>
+              <div>
+                <label class="field-label" for="cultural_region">Wilayah / budaya target pengguna</label>
+                <input type="text" id="cultural_region" value="Indonesia" placeholder="cth. Indonesia" />
+              </div>
             </div>
 
             <div class="field">
               <span class="field-label">Sistem ini bergerak di bidang apa?</span>
-              <div class="chip-group" data-name="system_domain" data-required="true" data-custom="system_domain_custom">
+              <div class="chip-group" data-name="system_domain" data-required="true">
                 <button type="button" class="chip" data-value="Kesehatan">🩺 Kesehatan</button>
                 <button type="button" class="chip" data-value="Keuangan/Fintech">💳 Keuangan</button>
                 <button type="button" class="chip" data-value="E-commerce">🛍️ E-commerce</button>
@@ -67,9 +73,11 @@
                 <button type="button" class="chip" data-value="Produktivitas/Tools">🗂️ Produktivitas</button>
                 <button type="button" class="chip" data-value="Media Sosial/Komunitas">💬 Sosial</button>
                 <button type="button" class="chip" data-value="Pemerintahan/Layanan Publik">🏛️ Layanan Publik</button>
-                <button type="button" class="chip chip-custom" data-value="custom">✏️ Lainnya</button>
+                <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="text"
+                        data-modal-title="Bidang Sistem Lainnya"
+                        data-modal-hint="Tulis bidang/industri sistem kamu, mis. Kuliner, Travel, Otomotif."
+                        data-value="custom"><span class="chip-label">✏️ Lainnya</span></button>
               </div>
-              <input type="text" id="system_domain_custom" class="custom-input hidden" placeholder="Tulis bidang sistem kamu" />
             </div>
 
             <div class="field">
@@ -91,6 +99,7 @@
 
             <div class="field">
               <span class="field-label">Rentang usia pengguna utama</span>
+              <span class="field-hint field-hint-top">Pilih rentang usia mayoritas pengguna sistem ini. Kalau tidak ada yang pas, pilih "Lainnya" untuk isi rentang usia sendiri.</span>
               <div class="chip-group" data-name="age_range" data-required="true">
                 <button type="button" class="chip" data-value="di bawah 12 tahun">Anak-anak</button>
                 <button type="button" class="chip" data-value="13-17 tahun">Remaja</button>
@@ -99,6 +108,10 @@
                 <button type="button" class="chip" data-value="41-60 tahun">Dewasa matang</button>
                 <button type="button" class="chip" data-value="60 tahun ke atas">Lansia</button>
                 <button type="button" class="chip" data-value="semua usia">Semua usia</button>
+                <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="range"
+                        data-modal-title="Rentang Usia Lainnya"
+                        data-modal-hint="Isi batas usia minimum dan maksimum pengguna utama kamu."
+                        data-value="custom"><span class="chip-label">✏️ Lainnya</span></button>
               </div>
             </div>
 
@@ -112,32 +125,33 @@
             </div>
 
             <div class="field">
-              <label class="field-label" for="cultural_region">Wilayah / budaya target pengguna</label>
-              <input type="text" id="cultural_region" value="Indonesia" placeholder="cth. Indonesia" />
-            </div>
-
-            <div class="field">
               <span class="field-label">Ada kebutuhan aksesibilitas khusus? <em>(boleh pilih lebih dari satu)</em></span>
               <div class="chip-group" data-name="accessibility_needs" data-multi="true">
                 <button type="button" class="chip" data-value="lansia">👴 Lansia</button>
                 <button type="button" class="chip" data-value="gangguan penglihatan/low-vision">👓 Low-vision</button>
                 <button type="button" class="chip" data-value="buta warna">🎨 Buta warna</button>
                 <button type="button" class="chip" data-value="keterbatasan motorik">✋ Motorik terbatas</button>
+                <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="text"
+                        data-modal-title="Kebutuhan Aksesibilitas Lainnya"
+                        data-modal-hint="Tulis kebutuhan aksesibilitas lain, mis. gangguan pendengaran, disleksia."
+                        data-value="custom"><span class="chip-label">✏️ Lainnya</span></button>
               </div>
             </div>
 
             <div class="field">
               <span class="field-label">Kesan apa yang ingin dirasakan pengguna?</span>
-              <div class="chip-group" data-name="emotional_tone_desired" data-required="true" data-custom="emotional_tone_custom">
+              <div class="chip-group" data-name="emotional_tone_desired" data-required="true">
                 <button type="button" class="chip active" data-value="tenang dan terpercaya">😌 Tenang & terpercaya</button>
                 <button type="button" class="chip" data-value="energik dan semangat">⚡ Energik & semangat</button>
                 <button type="button" class="chip" data-value="profesional dan serius">💼 Profesional & serius</button>
                 <button type="button" class="chip" data-value="ramah dan hangat">🤗 Ramah & hangat</button>
                 <button type="button" class="chip" data-value="playful dan menyenangkan">🎉 Playful & fun</button>
                 <button type="button" class="chip" data-value="premium dan eksklusif">💎 Premium & eksklusif</button>
-                <button type="button" class="chip chip-custom" data-value="custom">✏️ Lainnya</button>
+                <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="text"
+                        data-modal-title="Kesan Lainnya"
+                        data-modal-hint="Tulis kesan/nuansa lain yang kamu inginkan."
+                        data-value="custom"><span class="chip-label">✏️ Lainnya</span></button>
               </div>
-              <input type="text" id="emotional_tone_custom" class="custom-input hidden" placeholder="Tulis kesan yang diinginkan" />
             </div>
 
             <div class="wizard-actions">
@@ -164,30 +178,36 @@
                 <button type="button" class="chip" data-value="tenang">Tenang</button>
                 <button type="button" class="chip" data-value="mewah">Mewah</button>
                 <button type="button" class="chip" data-value="sederhana">Sederhana</button>
+                <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="text"
+                        data-modal-title="Kepribadian Brand Lainnya"
+                        data-modal-hint="Tulis kata sifat lain yang menggambarkan brand kamu."
+                        data-value="custom"><span class="chip-label">✏️ Lainnya</span></button>
               </div>
             </div>
 
-            <div class="field">
-              <span class="field-label">Sudah punya warna brand? <em>(opsional)</em></span>
-              <div class="color-pick-row">
-                <label class="color-pick">
-                  <input type="color" id="brand_color_1" value="#3454d1" />
-                  <span id="brand_color_1_label">#3454D1</span>
-                </label>
-                <label class="color-pick">
-                  <input type="color" id="brand_color_2" value="#3454d1" />
-                  <span id="brand_color_2_label">#3454D1</span>
-                </label>
-                <button type="button" class="btn-ghost btn-small" id="clear-colors">Tidak ada / kosongkan</button>
+            <div class="field field-inline">
+              <div>
+                <span class="field-label">Sudah punya warna brand? <em>(opsional)</em></span>
+                <div class="color-pick-row">
+                  <label class="color-pick">
+                    <input type="color" id="brand_color_1" value="#3454d1" />
+                    <span id="brand_color_1_label">#3454D1</span>
+                  </label>
+                  <label class="color-pick">
+                    <input type="color" id="brand_color_2" value="#3454d1" />
+                    <span id="brand_color_2_label">#3454D1</span>
+                  </label>
+                  <button type="button" class="btn-ghost btn-small" id="clear-colors">Kosongkan</button>
+                </div>
               </div>
-            </div>
-
-            <div class="field">
-              <label class="toggle-row">
-                <input type="checkbox" id="dark_mode" />
-                <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                <span>Sistem ini butuh tampilan mode gelap (dark mode)</span>
-              </label>
+              <div>
+                <span class="field-label">Mode gelap</span>
+                <label class="toggle-row">
+                  <input type="checkbox" id="dark_mode" />
+                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                  <span>Butuh tampilan mode gelap (dark mode)</span>
+                </label>
+              </div>
             </div>
 
             <div class="wizard-actions">
@@ -202,28 +222,52 @@
 
     <!-- ============ HALAMAN 2: HASIL ============ -->
     <section class="page hidden" id="page-result">
-      <div class="panel result-panel">
-        <div class="result-header">
-          <button type="button" class="btn-ghost btn-small" id="edit-btn">← Edit Input</button>
-          <h2>Hasil Rekomendasi</h2>
-          <div class="result-header-actions hidden" id="result-actions">
-            <button type="button" class="btn-ghost btn-small" id="copy-css-btn">📋 Salin sebagai CSS</button>
-            <button type="button" class="btn-ghost btn-small" id="restart-btn">↺ Mulai Ulang</button>
-          </div>
+      <div class="result-topbar">
+        <button type="button" class="btn-ghost btn-small" id="edit-btn">← Edit Input</button>
+        <h2>Hasil Rekomendasi</h2>
+        <div class="result-header-actions hidden" id="result-actions">
+          <button type="button" class="btn-ghost btn-small" id="copy-css-btn">📋 Salin sebagai CSS</button>
+          <button type="button" class="btn-ghost btn-small" id="restart-btn">↺ Mulai Ulang</button>
         </div>
-
-        <div id="loading" class="hidden">
-          <div class="spinner"></div>
-          <p>Gemini sedang meriset & menyusun rekomendasi untukmu...</p>
-          <p class="loading-sub">Biasanya 20-40 detik, mohon tunggu sebentar ya.</p>
-        </div>
-
-        <p id="result-error" class="error hidden"></p>
-
-        <div id="result" class="hidden"></div>
       </div>
+
+      <div id="loading" class="panel hidden">
+        <div class="spinner"></div>
+        <p>Gemini sedang meriset & menyusun rekomendasi untukmu...</p>
+        <p class="loading-sub">Biasanya 20-40 detik, mohon tunggu sebentar ya.</p>
+      </div>
+
+      <p id="result-error" class="error hidden"></p>
+
+      <div id="result" class="hidden"></div>
     </section>
   </main>
+
+  <!-- ============ MODAL: input "Lainnya" ============ -->
+  <dialog id="custom-input-modal" class="modal">
+    <h3 id="modal-title">Input Lainnya</h3>
+    <p id="modal-hint" class="field-hint hidden"></p>
+
+    <div id="modal-text-mode" class="modal-field">
+      <input type="text" id="modal-text-input" placeholder="Tulis di sini..." maxlength="60" />
+    </div>
+
+    <div id="modal-range-mode" class="modal-field modal-range-row hidden">
+      <label>Usia minimum
+        <input type="number" id="modal-range-min" min="0" max="120" placeholder="cth. 30" />
+      </label>
+      <label>Usia maksimum
+        <input type="number" id="modal-range-max" min="0" max="120" placeholder="cth. 45" />
+      </label>
+    </div>
+
+    <p id="modal-error" class="error hidden"></p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="modal-cancel">Batal</button>
+      <button type="button" class="btn-primary" id="modal-confirm">Simpan</button>
+    </div>
+  </dialog>
 
   <script src="/static/app.js"></script>
 </body>

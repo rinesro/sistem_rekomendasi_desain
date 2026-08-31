@@ -46,53 +46,148 @@ document.querySelectorAll('[data-action="back"]').forEach((btn) => {
 });
 
 /* ---------------------------------------------------------------------
- * Chip groups (single & multi select, with optional "Lainnya" custom input)
+ * Modal "Lainnya" — dipakai untuk semua chip-group agar user selalu bisa
+ * mengisi jawabannya sendiri kalau pilihan yang tersedia belum cocok.
+ * Mode "text": 1 input teks bebas. Mode "range": 2 input angka (usia
+ * minimum & maksimum) supaya minim salah format dibanding teks bebas.
  * ------------------------------------------------------------------- */
-document.querySelectorAll(".chip-group").forEach((group) => {
+const modalEl = document.getElementById("custom-input-modal");
+const modalTitleEl = document.getElementById("modal-title");
+const modalHintEl = document.getElementById("modal-hint");
+const modalTextModeEl = document.getElementById("modal-text-mode");
+const modalRangeModeEl = document.getElementById("modal-range-mode");
+const modalTextInputEl = document.getElementById("modal-text-input");
+const modalRangeMinEl = document.getElementById("modal-range-min");
+const modalRangeMaxEl = document.getElementById("modal-range-max");
+const modalErrorEl = document.getElementById("modal-error");
+
+let modalConfirmHandler = null;
+
+function truncateText(text, max) {
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function openCustomModal({ title, hint, mode, initialValue, onConfirm }) {
+  modalTitleEl.textContent = title || "Input Lainnya";
+  modalHintEl.textContent = hint || "";
+  modalHintEl.classList.toggle("hidden", !hint);
+  modalErrorEl.classList.add("hidden");
+
+  const isRange = mode === "range";
+  modalTextModeEl.classList.toggle("hidden", isRange);
+  modalRangeModeEl.classList.toggle("hidden", !isRange);
+
+  if (isRange) {
+    modalRangeMinEl.value = "";
+    modalRangeMaxEl.value = "";
+  } else {
+    modalTextInputEl.value = initialValue || "";
+  }
+
+  modalConfirmHandler = onConfirm;
+  modalEl.showModal();
+  (isRange ? modalRangeMinEl : modalTextInputEl).focus();
+}
+
+document.getElementById("modal-cancel").addEventListener("click", () => modalEl.close());
+modalEl.addEventListener("click", (e) => {
+  if (e.target === modalEl) modalEl.close();
+});
+
+document.getElementById("modal-confirm").addEventListener("click", () => {
+  const isRangeMode = !modalRangeModeEl.classList.contains("hidden");
+  let value;
+
+  if (isRangeMode) {
+    const min = parseInt(modalRangeMinEl.value, 10);
+    const max = parseInt(modalRangeMaxEl.value, 10);
+    if (Number.isNaN(min) || Number.isNaN(max)) {
+      modalErrorEl.textContent = "Isi kedua angka usia minimum dan maksimum ya.";
+      modalErrorEl.classList.remove("hidden");
+      return;
+    }
+    if (min < 0 || max > 120 || min >= max) {
+      modalErrorEl.textContent = "Rentang usia tidak valid. Pastikan usia minimum lebih kecil dari maksimum (0-120).";
+      modalErrorEl.classList.remove("hidden");
+      return;
+    }
+    value = `${min}-${max} tahun`;
+  } else {
+    value = modalTextInputEl.value.trim();
+    if (!value) {
+      modalErrorEl.textContent = "Tulis dulu ya sebelum disimpan.";
+      modalErrorEl.classList.remove("hidden");
+      return;
+    }
+  }
+
+  modalEl.close();
+  if (modalConfirmHandler) modalConfirmHandler(value);
+});
+
+/* ---------------------------------------------------------------------
+ * Chip groups (single & multi select) + trigger "Lainnya" yang membuka modal
+ * ------------------------------------------------------------------- */
+function wireChip(group, chip) {
   const isMulti = group.dataset.multi === "true";
-  const customTargetId = group.dataset.custom;
 
-  group.querySelectorAll(".chip").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      if (isMulti) {
-        chip.classList.toggle("active");
-      } else {
-        group.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-      }
+  chip.addEventListener("click", () => {
+    if (chip.dataset.customTrigger === "true") {
+      openCustomModal({
+        title: chip.dataset.modalTitle,
+        hint: chip.dataset.modalHint,
+        mode: chip.dataset.modalMode,
+        initialValue: isMulti ? "" : chip.dataset.confirmedValue || "",
+        onConfirm: (value) => {
+          if (isMulti) {
+            addCustomChip(group, chip, value);
+          } else {
+            group.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+            chip.dataset.value = value;
+            chip.dataset.confirmedValue = value;
+            chip.querySelector(".chip-label").textContent = `✏️ ${truncateText(value, 24)}`;
+            chip.title = value;
+            chip.classList.add("active");
+          }
+          clearFieldError(group.closest(".field"));
+        },
+      });
+      return;
+    }
 
-      if (customTargetId) {
-        const customInput = document.getElementById(customTargetId);
-        const customChip = group.querySelector('.chip[data-value="custom"]');
-        if (customChip && customChip.classList.contains("active")) {
-          customInput.classList.remove("hidden");
-          customInput.focus();
-        } else {
-          customInput.classList.add("hidden");
-        }
-      }
-
-      clearFieldError(group.closest(".field"));
-    });
+    if (isMulti) {
+      chip.classList.toggle("active");
+    } else {
+      group.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+    }
+    clearFieldError(group.closest(".field"));
   });
+}
+
+function addCustomChip(group, triggerChip, value) {
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "chip active";
+  chip.dataset.value = value;
+  chip.title = value;
+  chip.innerHTML = `<span class="chip-label">${truncateText(value, 24)}</span>`;
+  triggerChip.insertAdjacentElement("beforebegin", chip);
+  wireChip(group, chip);
+}
+
+document.querySelectorAll(".chip-group").forEach((group) => {
+  group.querySelectorAll(".chip").forEach((chip) => wireChip(group, chip));
 });
 
 function getChipGroupValue(name) {
   const group = document.querySelector(`.chip-group[data-name="${name}"]`);
   if (!group) return null;
   const isMulti = group.dataset.multi === "true";
-  const customTargetId = group.dataset.custom;
-
-  const activeChips = Array.from(group.querySelectorAll(".chip.active"));
-  const values = activeChips.map((chip) => {
-    if (chip.dataset.value === "custom" && customTargetId) {
-      return document.getElementById(customTargetId).value.trim();
-    }
-    return chip.dataset.value;
-  }).filter(Boolean);
-
-  if (isMulti) return values;
-  return values[0] || null;
+  const values = Array.from(group.querySelectorAll(".chip.active"))
+    .map((chip) => chip.dataset.value)
+    .filter((v) => v && v !== "custom");
+  return isMulti ? values : values[0] || null;
 }
 
 /* ---------------------------------------------------------------------
@@ -177,7 +272,10 @@ function buildPayload() {
 }
 
 /* ---------------------------------------------------------------------
- * Result rendering
+ * Result rendering — tiap bagian jadi accordion (bisa dibuka/tutup)
+ * supaya user bisa memilah rekomendasi tanpa scroll panjang sekaligus.
+ * Semua section terbuka secara default, KECUALI "Kenapa desain ini
+ * disarankan" (alasan) yang tertutup di awal.
  * ------------------------------------------------------------------- */
 const resultEl = document.getElementById("result");
 const loadingEl = document.getElementById("loading");
@@ -232,6 +330,19 @@ function componentCard(c) {
     </div>`;
 }
 
+function accordionSection(id, title, bodyHtml, startOpen) {
+  return `
+    <section class="accordion ${startOpen ? "open" : ""}" data-accordion="${id}">
+      <button type="button" class="accordion-header">
+        <h3>${title}</h3>
+        <span class="accordion-chevron">▾</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner"><div class="accordion-content">${bodyHtml}</div></div>
+      </div>
+    </section>`;
+}
+
 function renderResult(data) {
   lastRecommendation = data;
 
@@ -270,60 +381,54 @@ function renderResult(data) {
   const shapeComponents = data.shape.components.map(componentCard).join("");
   const sizingComponents = data.sizing.components.map(componentCard).join("");
 
-  resultEl.innerHTML = `
-    <div class="result-block">
-      <h3>Palet Warna &middot; skema ${data.color_palette.scheme_type} &middot; proporsi 60-30-10</h3>
-      ${colorGroupBlock(data.color_palette.dominant)}
-      ${colorGroupBlock(data.color_palette.secondary)}
-      ${colorGroupBlock(data.color_palette.accent)}
-      <div class="color-group">
-        <div class="color-group-header">
-          <span class="color-group-title">Warna Status <em>(dipakai sesuai konteks, di luar rasio 60-30-10)</em></span>
-        </div>
-        <div class="color-grid">${statusColorCards}</div>
+  const colorBody = `
+    ${colorGroupBlock(data.color_palette.dominant)}
+    ${colorGroupBlock(data.color_palette.secondary)}
+    ${colorGroupBlock(data.color_palette.accent)}
+    <div class="color-group">
+      <div class="color-group-header">
+        <span class="color-group-title">Warna Status <em>(dipakai sesuai konteks, di luar rasio 60-30-10)</em></span>
       </div>
-      <p class="notes-box">${data.color_palette.rationale}</p>
+      <div class="color-grid">${statusColorCards}</div>
     </div>
+    <p class="notes-box">${data.color_palette.rationale}</p>`;
 
-    <div class="result-block">
-      <h3>Bentuk &middot; gaya ${data.shape.overall_style}</h3>
-      <div class="component-list">${shapeComponents}</div>
-      <p class="notes-box">Gaya ikon yang disarankan: <strong>${data.shape.icon_style}</strong></p>
-      <p class="notes-box">${data.shape.rationale}</p>
-    </div>
+  const shapeBody = `
+    <div class="component-list">${shapeComponents}</div>
+    <p class="notes-box">Gaya ikon yang disarankan: <strong>${data.shape.icon_style}</strong></p>
+    <p class="notes-box">${data.shape.rationale}</p>`;
 
-    <div class="result-block">
-      <h3>Ukuran &amp; Jarak Antar Elemen</h3>
-      <div class="component-list">${sizingComponents}</div>
-      <div class="spacing-row">${spacingBars}</div>
-      <p class="notes-box">
-        Ukuran minimum tombol/area sentuh: <strong>${data.sizing.min_touch_target_px}px</strong> ·
-        Titik responsif (breakpoint): ${data.sizing.breakpoints_px.join("px, ")}px
-      </p>
-      <p class="notes-box">${data.sizing.rationale}</p>
-    </div>
+  const sizingBody = `
+    <div class="component-list">${sizingComponents}</div>
+    <div class="spacing-row">${spacingBars}</div>
+    <p class="notes-box">
+      Ukuran minimum tombol/area sentuh: <strong>${data.sizing.min_touch_target_px}px</strong> ·
+      Titik responsif (breakpoint): ${data.sizing.breakpoints_px.join("px, ")}px
+    </p>
+    <p class="notes-box">${data.sizing.rationale}</p>`;
 
-    <div class="result-block">
-      <h3>Skala Ukuran Teks</h3>
-      <div class="type-scale-list">${typeScale}</div>
-    </div>
+  const typeScaleBody = `<div class="type-scale-list">${typeScale}</div>`;
+  const principlesBody = `<div class="principle-list">${principles}</div>`;
+  const accessibilityBody = `<p class="notes-box">${data.accessibility_notes}</p>`;
+  const researchBody = `
+    <p class="notes-box">${data.research_notes}</p>
+    ${sources ? `<ul class="sources-list">${sources}</ul>` : ""}`;
 
-    <div class="result-block">
-      <h3>Kenapa desain ini yang disarankan</h3>
-      <div class="principle-list">${principles}</div>
-    </div>
+  resultEl.innerHTML = [
+    accordionSection("color", `Palet Warna &middot; skema ${data.color_palette.scheme_type} &middot; proporsi 60-30-10`, colorBody, true),
+    accordionSection("shape", `Bentuk &middot; gaya ${data.shape.overall_style}`, shapeBody, true),
+    accordionSection("sizing", "Ukuran &amp; Jarak Antar Elemen", sizingBody, true),
+    accordionSection("type-scale", "Skala Ukuran Teks", typeScaleBody, true),
+    accordionSection("principles", "Kenapa Desain Ini yang Disarankan", principlesBody, false),
+    accordionSection("accessibility", "Catatan Aksesibilitas", accessibilityBody, true),
+    accordionSection("research", "Sumber Riset (Gemini + Google Search)", researchBody, true),
+  ].join("");
 
-    <div class="result-block">
-      <h3>Catatan Aksesibilitas</h3>
-      <p class="notes-box">${data.accessibility_notes}</p>
-    </div>
-
-    <div class="result-block">
-      <h3>Sumber Riset (Gemini + Google Search)</h3>
-      <p class="notes-box">${data.research_notes}</p>
-      ${sources ? `<ul class="sources-list">${sources}</ul>` : ""}
-    </div>
-  `;
+  resultEl.querySelectorAll(".accordion-header").forEach((header) => {
+    header.addEventListener("click", () => {
+      header.closest(".accordion").classList.toggle("open");
+    });
+  });
 
   resultEl.querySelectorAll("[data-copy]").forEach((el) => {
     el.addEventListener("click", () => copyToClipboard(el.dataset.copy, `${el.dataset.copy} disalin`));
