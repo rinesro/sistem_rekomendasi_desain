@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Rekomendasi Desain UI/UX</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Sistem Rekomendasi Desain UI/UX</h1>
+    <p>Rekomendasi bentuk, ukuran, dan warna UI — didukung Gemini (riset otomatis) + teori UI/UX tervalidasi</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <h2>1. Kebutuhan Sistem &amp; Target User</h2>
+      <form id="rec-form">
+        <label>
+          Platform
+          <select name="platform" required>
+            <option value="web">Website</option>
+            <option value="mobile">Aplikasi Mobile</option>
+            <option value="desktop">Aplikasi Desktop</option>
+          </select>
+        </label>
+
+        <label>
+          Nama sistem
+          <input type="text" name="system_name" placeholder="cth. Aplikasi Kesehatan Mental Tenang" required />
+        </label>
+
+        <label>
+          Domain / industri
+          <input type="text" name="system_domain" placeholder="cth. Kesehatan, Fintech, E-commerce, Edukasi" required />
+        </label>
+
+        <label>
+          Tujuan sistem
+          <textarea name="system_goals" rows="2" placeholder="cth. Membantu pengguna memantau mood harian dan konsultasi psikolog online" required></textarea>
+        </label>
+
+        <label>
+          Kepribadian brand
+          <input type="text" name="brand_personality" placeholder="cth. profesional, hangat, terpercaya" required />
+        </label>
+
+        <fieldset>
+          <legend>Target User</legend>
+
+          <label>
+            Rentang usia
+            <input type="text" name="age_range" placeholder="cth. 18-35" required />
+          </label>
+
+          <label>
+            Tingkat literasi teknologi
+            <select name="tech_literacy" required>
+              <option value="low">Rendah</option>
+              <option value="medium" selected>Menengah</option>
+              <option value="high">Tinggi</option>
+            </select>
+          </label>
+
+          <label>
+            Wilayah / budaya
+            <input type="text" name="cultural_region" placeholder="cth. Indonesia" value="Indonesia" required />
+          </label>
+
+          <label>
+            Kebutuhan aksesibilitas (pisahkan koma, boleh kosong)
+            <input type="text" name="accessibility_needs" placeholder="cth. low-vision, lansia" />
+          </label>
+
+          <label>
+            Nuansa emosional yang diinginkan
+            <input type="text" name="emotional_tone_desired" placeholder="cth. tenang dan aman" required />
+          </label>
+        </fieldset>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="dark_mode" />
+          Butuh dukungan mode gelap
+        </label>
+
+        <label>
+          Warna brand yang sudah ada (opsional, pisahkan koma, hex)
+          <input type="text" name="existing_brand_colors" placeholder="cth. #2E6BE6, #F5A623" />
+        </label>
+
+        <button type="submit" id="submit-btn">Buat Rekomendasi</button>
+      </form>
+      <p id="error-box" class="error hidden"></p>
+    </section>
+
+    <section class="panel result-panel">
+      <h2>2. Hasil Rekomendasi</h2>
+      <div id="loading" class="hidden">
+        <div class="spinner"></div>
+        <p>Gemini sedang meriset & menyusun rekomendasi... (bisa 20-40 detik)</p>
+      </div>
+      <div id="result" class="hidden"></div>
+      <div id="placeholder" class="placeholder">
+        Isi form di sebelah kiri lalu klik <strong>Buat Rekomendasi</strong> untuk melihat hasilnya di sini.
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
