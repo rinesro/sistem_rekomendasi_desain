@@ -191,7 +191,10 @@ function getChipGroupValue(name) {
 }
 
 /* ---------------------------------------------------------------------
- * Validation (light touch — just enough to avoid empty submissions)
+ * Validation — field wajib yang kosong ditandai merah (persisten sampai
+ * diisi) dan memunculkan popup blocking, bukan sekadar teks kecil, supaya
+ * jelas terlihat oleh user non-IT dan tidak bisa lanjut/mulai analisis
+ * sebelum data wajib lengkap.
  * ------------------------------------------------------------------- */
 function markFieldError(fieldEl) {
   if (fieldEl) fieldEl.classList.add("field-error-flash");
@@ -200,28 +203,55 @@ function clearFieldError(fieldEl) {
   if (fieldEl) fieldEl.classList.remove("field-error-flash");
 }
 
+const validationModalEl = document.getElementById("validation-modal");
+const validationMissingListEl = document.getElementById("validation-missing-list");
+
+document.getElementById("validation-modal-ok").addEventListener("click", () => validationModalEl.close());
+validationModalEl.addEventListener("click", (e) => {
+  if (e.target === validationModalEl) validationModalEl.close();
+});
+
+function showValidationPopup(missingLabels) {
+  validationMissingListEl.innerHTML = missingLabels.map((label) => `<li>${label}</li>`).join("");
+  validationModalEl.showModal();
+}
+
+// Field teks: hapus tanda error begitu user mulai mengisi.
+["system_name", "system_goals", "cultural_region"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", (e) => {
+    clearFieldError(e.target.closest(".field"));
+  });
+});
+
 function validateStep(step) {
-  const errors = [];
+  const checks = [];
 
   if (step === 1) {
-    if (!document.getElementById("system_name").value.trim()) errors.push("Nama sistem");
-    if (!getChipGroupValue("system_domain")) errors.push("Bidang sistem");
-    if (!document.getElementById("system_goals").value.trim()) errors.push("Tujuan sistem");
+    const nameEl = document.getElementById("system_name");
+    const domainGroup = document.querySelector('.chip-group[data-name="system_domain"]');
+    const goalsEl = document.getElementById("system_goals");
+    checks.push({ label: "Nama sistem / aplikasinya apa?", ok: !!nameEl.value.trim(), fieldEl: nameEl.closest(".field") });
+    checks.push({ label: "Sistem ini bergerak di bidang apa?", ok: !!getChipGroupValue("system_domain"), fieldEl: domainGroup.closest(".field") });
+    checks.push({ label: "Apa yang bisa dilakukan pengguna di sini?", ok: !!goalsEl.value.trim(), fieldEl: goalsEl.closest(".field") });
   }
   if (step === 2) {
-    if (!getChipGroupValue("age_range")) errors.push("Rentang usia");
-    if (!getChipGroupValue("tech_literacy")) errors.push("Tingkat keterbiasaan teknologi");
-    if (!document.getElementById("cultural_region").value.trim()) errors.push("Wilayah/budaya");
-    if (!getChipGroupValue("emotional_tone_desired")) errors.push("Kesan yang diinginkan");
+    const ageGroup = document.querySelector('.chip-group[data-name="age_range"]');
+    const techGroup = document.querySelector('.chip-group[data-name="tech_literacy"]');
+    const regionEl = document.getElementById("cultural_region");
+    const toneGroup = document.querySelector('.chip-group[data-name="emotional_tone_desired"]');
+    checks.push({ label: "Rentang usia pengguna utama", ok: !!getChipGroupValue("age_range"), fieldEl: ageGroup.closest(".field") });
+    checks.push({ label: "Seberapa terbiasa mereka pakai HP/komputer?", ok: !!getChipGroupValue("tech_literacy"), fieldEl: techGroup.closest(".field") });
+    checks.push({ label: "Wilayah / budaya target pengguna", ok: !!regionEl.value.trim(), fieldEl: regionEl.closest(".field") });
+    checks.push({ label: "Kesan apa yang ingin dirasakan pengguna?", ok: !!getChipGroupValue("emotional_tone_desired"), fieldEl: toneGroup.closest(".field") });
   }
 
-  const errorBox = document.getElementById("error-box");
-  if (errors.length) {
-    errorBox.textContent = `Lengkapi dulu ya: ${errors.join(", ")}.`;
-    errorBox.classList.remove("hidden");
+  checks.forEach((c) => (c.ok ? clearFieldError(c.fieldEl) : markFieldError(c.fieldEl)));
+
+  const missing = checks.filter((c) => !c.ok);
+  if (missing.length) {
+    showValidationPopup(missing.map((c) => c.label));
     return false;
   }
-  errorBox.classList.add("hidden");
   return true;
 }
 

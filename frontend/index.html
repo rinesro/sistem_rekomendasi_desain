@@ -35,6 +35,8 @@
           <div class="step-dot" data-step-dot="3"><span>3</span><label>Gaya</label></div>
         </div>
 
+        <p class="required-legend"><span class="required-mark">*Wajib</span> artinya bagian itu harus diisi supaya rekomendasi bisa dibuat.</p>
+
         <form id="rec-form" novalidate>
 
           <!-- STEP 1 -->
@@ -43,7 +45,7 @@
             <p class="step-desc">Ini akan dipakai untuk menentukan gaya visual yang paling cocok.</p>
 
             <div class="field">
-              <span class="field-label">Sistem ini dijalankan sebagai apa?</span>
+              <span class="field-label">Sistem ini dijalankan sebagai apa? <span class="required-mark">*Wajib</span></span>
               <div class="chip-group" data-name="platform" data-required="true">
                 <button type="button" class="chip active" data-value="web">🌐 Website</button>
                 <button type="button" class="chip" data-value="mobile">📱 Aplikasi Mobile</button>
@@ -53,18 +55,18 @@
 
             <div class="field field-inline">
               <div>
-                <label class="field-label" for="system_name">Nama sistem / aplikasinya apa?</label>
+                <label class="field-label" for="system_name">Nama sistem / aplikasinya apa? <span class="required-mark">*Wajib</span></label>
                 <input type="text" id="system_name" placeholder="cth. Tenang - Aplikasi Kesehatan Mental" />
                 <span class="field-hint">Boleh nama sementara, tidak masalah.</span>
               </div>
               <div>
-                <label class="field-label" for="cultural_region">Wilayah / budaya target pengguna</label>
+                <label class="field-label" for="cultural_region">Wilayah / budaya target pengguna <span class="required-mark">*Wajib</span></label>
                 <input type="text" id="cultural_region" value="Indonesia" placeholder="cth. Indonesia" />
               </div>
             </div>
 
             <div class="field">
-              <span class="field-label">Sistem ini bergerak di bidang apa?</span>
+              <span class="field-label">Sistem ini bergerak di bidang apa? <span class="required-mark">*Wajib</span></span>
               <div class="chip-group" data-name="system_domain" data-required="true">
                 <button type="button" class="chip" data-value="Kesehatan">🩺 Kesehatan</button>
                 <button type="button" class="chip" data-value="Keuangan/Fintech">💳 Keuangan</button>
@@ -81,7 +83,7 @@
             </div>
 
             <div class="field">
-              <label class="field-label" for="system_goals">Apa yang bisa dilakukan pengguna di sini?</label>
+              <label class="field-label" for="system_goals">Apa yang bisa dilakukan pengguna di sini? <span class="required-mark">*Wajib</span></label>
               <textarea id="system_goals" rows="3" placeholder="cth. Pengguna bisa mencatat mood harian dan booking konsultasi dengan psikolog secara online"></textarea>
               <span class="field-hint">Cukup 1-2 kalimat sederhana, tidak perlu istilah teknis.</span>
             </div>
@@ -98,7 +100,7 @@
             <p class="step-desc">Desain yang cocok untuk anak muda belum tentu cocok untuk lansia — ini membantu menyesuaikannya.</p>
 
             <div class="field">
-              <span class="field-label">Rentang usia pengguna utama</span>
+              <span class="field-label">Rentang usia pengguna utama <span class="required-mark">*Wajib</span></span>
               <span class="field-hint field-hint-top">Pilih rentang usia mayoritas pengguna sistem ini. Kalau tidak ada yang pas, pilih "Lainnya" untuk isi rentang usia sendiri.</span>
               <div class="chip-group chip-group-vertical" data-name="age_range" data-required="true">
                 <button type="button" class="chip" data-value="di bawah 12 tahun">Anak-anak <span class="chip-sub">(di bawah 12 tahun)</span></button>
@@ -116,7 +118,7 @@
             </div>
 
             <div class="field">
-              <span class="field-label">Seberapa terbiasa mereka pakai HP/komputer?</span>
+              <span class="field-label">Seberapa terbiasa mereka pakai HP/komputer? <span class="required-mark">*Wajib</span></span>
               <div class="chip-group chip-group-vertical" data-name="tech_literacy" data-required="true">
                 <button type="button" class="chip" data-value="low">😌 Pemula — jarang pakai aplikasi/gadget</button>
                 <button type="button" class="chip active" data-value="medium">🙂 Menengah — terbiasa pakai aplikasi sehari-hari</button>
@@ -139,7 +141,7 @@
             </div>
 
             <div class="field">
-              <span class="field-label">Kesan apa yang ingin dirasakan pengguna?</span>
+              <span class="field-label">Kesan apa yang ingin dirasakan pengguna? <span class="required-mark">*Wajib</span></span>
               <div class="chip-group" data-name="emotional_tone_desired" data-required="true">
                 <button type="button" class="chip active" data-value="tenang dan terpercaya">😌 Tenang & terpercaya</button>
                 <button type="button" class="chip" data-value="energik dan semangat">⚡ Energik & semangat</button>
@@ -267,6 +269,17 @@
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="modal-cancel">Batal</button>
       <button type="button" class="btn-primary" id="modal-confirm">Simpan</button>
+    </div>
+  </dialog>
+
+  <!-- ============ MODAL: peringatan data wajib belum lengkap ============ -->
+  <dialog id="validation-modal" class="modal modal-alert">
+    <div class="modal-alert-icon">⚠️</div>
+    <h3>Lengkapi Data Wajib</h3>
+    <p>Harap isi data wajib untuk memastikan rekomendasi sesuai kebutuhan Anda.</p>
+    <ul id="validation-missing-list" class="validation-missing-list"></ul>
+    <div class="modal-actions">
+      <button type="button" class="btn-primary" id="validation-modal-ok">Mengerti</button>
     </div>
   </dialog>
 
