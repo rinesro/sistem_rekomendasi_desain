@@ -255,7 +255,7 @@ dialog.modal .field-hint { margin: 0 0 16px; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading { text-align: center; color: var(--text-muted); font-size: 14px; }
-.loading-sub { font-size: 12px; opacity: 0.8; }
+.loading-sub { font-size: 12px; opacity: 0.8; margin-bottom: 18px; }
 
 #result { display: flex; flex-direction: column; gap: 14px; }
 

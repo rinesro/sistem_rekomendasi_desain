@@ -494,11 +494,15 @@ ${sizeLines.join("\n")}
 });
 
 /* ---------------------------------------------------------------------
- * Submit
+ * Submit — bisa dibatalkan lewat tombol "Batalkan" saat loading, yang
+ * menghentikan request ke server dan mengembalikan user ke halaman input
+ * paling akhir (step terakhir wizard) tanpa kehilangan isian mereka.
  * ------------------------------------------------------------------- */
 const form = document.getElementById("rec-form");
 const submitBtn = document.getElementById("submit-btn");
 const errorBox = document.getElementById("error-box");
+const editBtnEl = document.getElementById("edit-btn");
+let activeRequestController = null;
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -509,12 +513,17 @@ form.addEventListener("submit", async (e) => {
   errorBox.classList.add("hidden");
 
   // Pindah ke halaman 2 (hasil) dan tampilkan status loading di sana.
+  // Tombol "Edit Input" disembunyikan selama loading — jalan keluarnya
+  // saat memproses adalah tombol "Batalkan" di bawah spinner.
   resultEl.classList.add("hidden");
   resultActionsEl.classList.add("hidden");
   resultErrorEl.classList.add("hidden");
+  editBtnEl.classList.add("hidden");
   loadingEl.classList.remove("hidden");
   showPage("page-result");
   submitBtn.disabled = true;
+
+  activeRequestController = new AbortController();
 
   try {
     const payload = buildPayload();
@@ -522,6 +531,7 @@ form.addEventListener("submit", async (e) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: activeRequestController.signal,
     });
 
     if (!res.ok) {
@@ -532,18 +542,29 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
     renderResult(data);
   } catch (err) {
+    if (err.name === "AbortError") return; // dibatalkan lewat tombol "Batalkan"
     resultErrorEl.textContent = err.message || "Terjadi kesalahan. Coba lagi ya.";
     resultErrorEl.classList.remove("hidden");
   } finally {
     loadingEl.classList.add("hidden");
+    editBtnEl.classList.remove("hidden");
     submitBtn.disabled = false;
+    activeRequestController = null;
   }
+});
+
+document.getElementById("cancel-loading-btn").addEventListener("click", () => {
+  if (activeRequestController) activeRequestController.abort();
+  loadingEl.classList.add("hidden");
+  resultErrorEl.classList.add("hidden");
+  showStep(TOTAL_STEPS);
+  showPage("page-form");
 });
 
 /* ---------------------------------------------------------------------
  * Navigasi antar halaman: Edit Input & Mulai Ulang
  * ------------------------------------------------------------------- */
-document.getElementById("edit-btn").addEventListener("click", () => {
+editBtnEl.addEventListener("click", () => {
   showPage("page-form");
 });
 
