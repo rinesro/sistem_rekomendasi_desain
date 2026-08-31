@@ -420,8 +420,8 @@ function renderResult(data) {
     accordionSection("sizing", "Ukuran &amp; Jarak Antar Elemen", sizingBody, true),
     accordionSection("type-scale", "Skala Ukuran Teks", typeScaleBody, true),
     accordionSection("principles", "Kenapa Desain Ini yang Disarankan", principlesBody, false),
-    accordionSection("accessibility", "Catatan Aksesibilitas", accessibilityBody, true),
-    accordionSection("research", "Sumber Riset (Gemini + Google Search)", researchBody, true),
+    accordionSection("accessibility", "Catatan Aksesibilitas", accessibilityBody, false),
+    accordionSection("research", "Sumber Riset (Gemini + Google Search)", researchBody, false),
   ].join("");
 
   resultEl.querySelectorAll(".accordion-header").forEach((header) => {

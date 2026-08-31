@@ -100,14 +100,14 @@
             <div class="field">
               <span class="field-label">Rentang usia pengguna utama</span>
               <span class="field-hint field-hint-top">Pilih rentang usia mayoritas pengguna sistem ini. Kalau tidak ada yang pas, pilih "Lainnya" untuk isi rentang usia sendiri.</span>
-              <div class="chip-group" data-name="age_range" data-required="true">
-                <button type="button" class="chip" data-value="di bawah 12 tahun">Anak-anak</button>
-                <button type="button" class="chip" data-value="13-17 tahun">Remaja</button>
-                <button type="button" class="chip active" data-value="18-25 tahun">Dewasa muda</button>
-                <button type="button" class="chip" data-value="26-40 tahun">Dewasa</button>
-                <button type="button" class="chip" data-value="41-60 tahun">Dewasa matang</button>
-                <button type="button" class="chip" data-value="60 tahun ke atas">Lansia</button>
-                <button type="button" class="chip" data-value="semua usia">Semua usia</button>
+              <div class="chip-group chip-group-vertical" data-name="age_range" data-required="true">
+                <button type="button" class="chip" data-value="di bawah 12 tahun">Anak-anak <span class="chip-sub">(di bawah 12 tahun)</span></button>
+                <button type="button" class="chip" data-value="13-17 tahun">Remaja <span class="chip-sub">(13-17 tahun)</span></button>
+                <button type="button" class="chip active" data-value="18-25 tahun">Dewasa muda <span class="chip-sub">(18-25 tahun)</span></button>
+                <button type="button" class="chip" data-value="26-40 tahun">Dewasa <span class="chip-sub">(26-40 tahun)</span></button>
+                <button type="button" class="chip" data-value="41-60 tahun">Dewasa matang <span class="chip-sub">(41-60 tahun)</span></button>
+                <button type="button" class="chip" data-value="60 tahun ke atas">Lansia <span class="chip-sub">(60 tahun ke atas)</span></button>
+                <button type="button" class="chip" data-value="semua usia">Semua usia <span class="chip-sub">(tidak dibatasi usia tertentu)</span></button>
                 <button type="button" class="chip chip-custom" data-custom-trigger="true" data-modal-mode="range"
                         data-modal-title="Rentang Usia Lainnya"
                         data-modal-hint="Isi batas usia minimum dan maksimum pengguna utama kamu."

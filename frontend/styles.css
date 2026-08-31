@@ -150,6 +150,7 @@ textarea { resize: vertical; min-height: 64px; }
 }
 .chip-custom { border-style: dashed; }
 .chip-custom.active { border-style: solid; }
+.chip-sub { font-weight: 500; opacity: 0.75; font-size: 0.92em; }
 
 /* ---------- Modal "Lainnya" ---------- */
 dialog.modal {
