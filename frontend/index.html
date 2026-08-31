@@ -4,104 +4,220 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sistem Rekomendasi Desain UI/UX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <h1>Sistem Rekomendasi Desain UI/UX</h1>
-    <p>Rekomendasi bentuk, ukuran, dan warna UI — didukung Gemini (riset otomatis) + teori UI/UX tervalidasi</p>
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-badge">✨</span>
+        <div>
+          <h1>Rekomendasi Desain UI</h1>
+          <p>Jawab beberapa pertanyaan sederhana, dapatkan rekomendasi bentuk, ukuran, dan warna tampilan — tanpa perlu jadi desainer.</p>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main class="layout">
-    <section class="panel form-panel">
-      <h2>1. Kebutuhan Sistem &amp; Target User</h2>
-      <form id="rec-form">
-        <label>
-          Platform
-          <select name="platform" required>
-            <option value="web">Website</option>
-            <option value="mobile">Aplikasi Mobile</option>
-            <option value="desktop">Aplikasi Desktop</option>
-          </select>
-        </label>
+    <!-- ============ FORM WIZARD ============ -->
+    <section class="panel form-panel" id="form-panel">
+      <div class="stepper" id="stepper">
+        <div class="step-dot active" data-step-dot="1"><span>1</span><label>Sistem</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step-dot="2"><span>2</span><label>Pengguna</label></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step-dot="3"><span>3</span><label>Gaya</label></div>
+      </div>
 
-        <label>
-          Nama sistem
-          <input type="text" name="system_name" placeholder="cth. Aplikasi Kesehatan Mental Tenang" required />
-        </label>
+      <form id="rec-form" novalidate>
 
-        <label>
-          Domain / industri
-          <input type="text" name="system_domain" placeholder="cth. Kesehatan, Fintech, E-commerce, Edukasi" required />
-        </label>
+        <!-- STEP 1 -->
+        <div class="step" data-step="1">
+          <h2>Ceritakan tentang sistem kamu</h2>
+          <p class="step-desc">Ini akan dipakai untuk menentukan gaya visual yang paling cocok.</p>
 
-        <label>
-          Tujuan sistem
-          <textarea name="system_goals" rows="2" placeholder="cth. Membantu pengguna memantau mood harian dan konsultasi psikolog online" required></textarea>
-        </label>
+          <div class="field">
+            <span class="field-label">Sistem ini dijalankan sebagai apa?</span>
+            <div class="chip-group" data-name="platform" data-required="true">
+              <button type="button" class="chip active" data-value="web">🌐 Website</button>
+              <button type="button" class="chip" data-value="mobile">📱 Aplikasi Mobile</button>
+              <button type="button" class="chip" data-value="desktop">🖥️ Aplikasi Desktop</button>
+            </div>
+          </div>
 
-        <label>
-          Kepribadian brand
-          <input type="text" name="brand_personality" placeholder="cth. profesional, hangat, terpercaya" required />
-        </label>
+          <div class="field">
+            <label class="field-label" for="system_name">Nama sistem / aplikasinya apa?</label>
+            <input type="text" id="system_name" placeholder="cth. Tenang - Aplikasi Kesehatan Mental" />
+            <span class="field-hint">Boleh nama sementara, tidak masalah.</span>
+          </div>
 
-        <fieldset>
-          <legend>Target User</legend>
+          <div class="field">
+            <span class="field-label">Sistem ini bergerak di bidang apa?</span>
+            <div class="chip-group" data-name="system_domain" data-required="true" data-custom="system_domain_custom">
+              <button type="button" class="chip" data-value="Kesehatan">🩺 Kesehatan</button>
+              <button type="button" class="chip" data-value="Keuangan/Fintech">💳 Keuangan</button>
+              <button type="button" class="chip" data-value="E-commerce">🛍️ E-commerce</button>
+              <button type="button" class="chip" data-value="Edukasi">🎓 Edukasi</button>
+              <button type="button" class="chip" data-value="Produktivitas/Tools">🗂️ Produktivitas</button>
+              <button type="button" class="chip" data-value="Media Sosial/Komunitas">💬 Sosial</button>
+              <button type="button" class="chip" data-value="Pemerintahan/Layanan Publik">🏛️ Layanan Publik</button>
+              <button type="button" class="chip chip-custom" data-value="custom">✏️ Lainnya</button>
+            </div>
+            <input type="text" id="system_domain_custom" class="custom-input hidden" placeholder="Tulis bidang sistem kamu" />
+          </div>
 
-          <label>
-            Rentang usia
-            <input type="text" name="age_range" placeholder="cth. 18-35" required />
-          </label>
+          <div class="field">
+            <label class="field-label" for="system_goals">Apa yang bisa dilakukan pengguna di sini?</label>
+            <textarea id="system_goals" rows="3" placeholder="cth. Pengguna bisa mencatat mood harian dan booking konsultasi dengan psikolog secara online"></textarea>
+            <span class="field-hint">Cukup 1-2 kalimat sederhana, tidak perlu istilah teknis.</span>
+          </div>
 
-          <label>
-            Tingkat literasi teknologi
-            <select name="tech_literacy" required>
-              <option value="low">Rendah</option>
-              <option value="medium" selected>Menengah</option>
-              <option value="high">Tinggi</option>
-            </select>
-          </label>
+          <div class="wizard-actions">
+            <span></span>
+            <button type="button" class="btn-primary" data-action="next">Lanjut →</button>
+          </div>
+        </div>
 
-          <label>
-            Wilayah / budaya
-            <input type="text" name="cultural_region" placeholder="cth. Indonesia" value="Indonesia" required />
-          </label>
+        <!-- STEP 2 -->
+        <div class="step hidden" data-step="2">
+          <h2>Siapa yang akan memakainya?</h2>
+          <p class="step-desc">Desain yang cocok untuk anak muda belum tentu cocok untuk lansia — ini membantu menyesuaikannya.</p>
 
-          <label>
-            Kebutuhan aksesibilitas (pisahkan koma, boleh kosong)
-            <input type="text" name="accessibility_needs" placeholder="cth. low-vision, lansia" />
-          </label>
+          <div class="field">
+            <span class="field-label">Rentang usia pengguna utama</span>
+            <div class="chip-group" data-name="age_range" data-required="true">
+              <button type="button" class="chip" data-value="di bawah 12 tahun">Anak-anak</button>
+              <button type="button" class="chip" data-value="13-17 tahun">Remaja</button>
+              <button type="button" class="chip active" data-value="18-25 tahun">Dewasa muda</button>
+              <button type="button" class="chip" data-value="26-40 tahun">Dewasa</button>
+              <button type="button" class="chip" data-value="41-60 tahun">Dewasa matang</button>
+              <button type="button" class="chip" data-value="60 tahun ke atas">Lansia</button>
+              <button type="button" class="chip" data-value="semua usia">Semua usia</button>
+            </div>
+          </div>
 
-          <label>
-            Nuansa emosional yang diinginkan
-            <input type="text" name="emotional_tone_desired" placeholder="cth. tenang dan aman" required />
-          </label>
-        </fieldset>
+          <div class="field">
+            <span class="field-label">Seberapa terbiasa mereka pakai HP/komputer?</span>
+            <div class="chip-group chip-group-vertical" data-name="tech_literacy" data-required="true">
+              <button type="button" class="chip" data-value="low">😌 Pemula — jarang pakai aplikasi/gadget</button>
+              <button type="button" class="chip active" data-value="medium">🙂 Menengah — terbiasa pakai aplikasi sehari-hari</button>
+              <button type="button" class="chip" data-value="high">🤓 Mahir — terbiasa dengan teknologi/software</button>
+            </div>
+          </div>
 
-        <label class="checkbox-row">
-          <input type="checkbox" name="dark_mode" />
-          Butuh dukungan mode gelap
-        </label>
+          <div class="field">
+            <label class="field-label" for="cultural_region">Wilayah / budaya target pengguna</label>
+            <input type="text" id="cultural_region" value="Indonesia" placeholder="cth. Indonesia" />
+          </div>
 
-        <label>
-          Warna brand yang sudah ada (opsional, pisahkan koma, hex)
-          <input type="text" name="existing_brand_colors" placeholder="cth. #2E6BE6, #F5A623" />
-        </label>
+          <div class="field">
+            <span class="field-label">Ada kebutuhan aksesibilitas khusus? <em>(boleh pilih lebih dari satu)</em></span>
+            <div class="chip-group" data-name="accessibility_needs" data-multi="true">
+              <button type="button" class="chip" data-value="lansia">👴 Lansia</button>
+              <button type="button" class="chip" data-value="gangguan penglihatan/low-vision">👓 Low-vision</button>
+              <button type="button" class="chip" data-value="buta warna">🎨 Buta warna</button>
+              <button type="button" class="chip" data-value="keterbatasan motorik">✋ Motorik terbatas</button>
+            </div>
+          </div>
 
-        <button type="submit" id="submit-btn">Buat Rekomendasi</button>
+          <div class="field">
+            <span class="field-label">Kesan apa yang ingin dirasakan pengguna?</span>
+            <div class="chip-group" data-name="emotional_tone_desired" data-required="true" data-custom="emotional_tone_custom">
+              <button type="button" class="chip active" data-value="tenang dan terpercaya">😌 Tenang & terpercaya</button>
+              <button type="button" class="chip" data-value="energik dan semangat">⚡ Energik & semangat</button>
+              <button type="button" class="chip" data-value="profesional dan serius">💼 Profesional & serius</button>
+              <button type="button" class="chip" data-value="ramah dan hangat">🤗 Ramah & hangat</button>
+              <button type="button" class="chip" data-value="playful dan menyenangkan">🎉 Playful & fun</button>
+              <button type="button" class="chip" data-value="premium dan eksklusif">💎 Premium & eksklusif</button>
+              <button type="button" class="chip chip-custom" data-value="custom">✏️ Lainnya</button>
+            </div>
+            <input type="text" id="emotional_tone_custom" class="custom-input hidden" placeholder="Tulis kesan yang diinginkan" />
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn-ghost" data-action="back">← Kembali</button>
+            <button type="button" class="btn-primary" data-action="next">Lanjut →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step hidden" data-step="3">
+          <h2>Gaya visual (opsional)</h2>
+          <p class="step-desc">Tidak yakin? Lewati saja bagian ini — Gemini akan menentukan gaya yang paling sesuai secara otomatis.</p>
+
+          <div class="field">
+            <span class="field-label">Kepribadian brand seperti apa? <em>(boleh pilih lebih dari satu)</em></span>
+            <div class="chip-group" data-name="brand_personality" data-multi="true">
+              <button type="button" class="chip" data-value="profesional">Profesional</button>
+              <button type="button" class="chip" data-value="ramah">Ramah</button>
+              <button type="button" class="chip" data-value="modern">Modern</button>
+              <button type="button" class="chip" data-value="minimalis">Minimalis</button>
+              <button type="button" class="chip" data-value="elegan">Elegan</button>
+              <button type="button" class="chip" data-value="playful">Playful</button>
+              <button type="button" class="chip" data-value="berani">Berani</button>
+              <button type="button" class="chip" data-value="tenang">Tenang</button>
+              <button type="button" class="chip" data-value="mewah">Mewah</button>
+              <button type="button" class="chip" data-value="sederhana">Sederhana</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Sudah punya warna brand? <em>(opsional)</em></span>
+            <div class="color-pick-row">
+              <label class="color-pick">
+                <input type="color" id="brand_color_1" value="#3454d1" />
+                <span id="brand_color_1_label">#3454D1</span>
+              </label>
+              <label class="color-pick">
+                <input type="color" id="brand_color_2" value="#3454d1" />
+                <span id="brand_color_2_label">#3454D1</span>
+              </label>
+              <button type="button" class="btn-ghost btn-small" id="clear-colors">Tidak ada / kosongkan</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="toggle-row">
+              <input type="checkbox" id="dark_mode" />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span>Sistem ini butuh tampilan mode gelap (dark mode)</span>
+            </label>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn-ghost" data-action="back">← Kembali</button>
+            <button type="submit" class="btn-primary" id="submit-btn">✨ Buat Rekomendasi</button>
+          </div>
+        </div>
       </form>
       <p id="error-box" class="error hidden"></p>
     </section>
 
+    <!-- ============ RESULT ============ -->
     <section class="panel result-panel">
-      <h2>2. Hasil Rekomendasi</h2>
+      <div class="result-header">
+        <h2>Hasil Rekomendasi</h2>
+        <div class="result-header-actions hidden" id="result-actions">
+          <button type="button" class="btn-ghost btn-small" id="copy-css-btn">📋 Salin sebagai CSS</button>
+          <button type="button" class="btn-ghost btn-small" id="restart-btn">↺ Mulai Ulang</button>
+        </div>
+      </div>
+
       <div id="loading" class="hidden">
         <div class="spinner"></div>
-        <p>Gemini sedang meriset & menyusun rekomendasi... (bisa 20-40 detik)</p>
+        <p>Gemini sedang meriset & menyusun rekomendasi untukmu...</p>
+        <p class="loading-sub">Biasanya 20-40 detik, mohon tunggu sebentar ya.</p>
       </div>
+
       <div id="result" class="hidden"></div>
+
       <div id="placeholder" class="placeholder">
-        Isi form di sebelah kiri lalu klik <strong>Buat Rekomendasi</strong> untuk melihat hasilnya di sini.
+        <div class="placeholder-icon">🎨</div>
+        <p>Jawab pertanyaan di sebelah kiri, hasil rekomendasi desainmu akan muncul di sini.</p>
       </div>
     </section>
   </main>
